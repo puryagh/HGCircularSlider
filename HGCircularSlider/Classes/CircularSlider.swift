@@ -20,6 +20,11 @@ open class CircularSlider: UIControl {
     // MARK: Changing the Slider’s Appearance
     
     /**
+    * Setting isReadOnly for disablig slider for just showing valu like indicator
+    */
+    @IBInspectable
+    open var isReadOnly: Bool = false
+    /**
      * The color shown for the selected portion of the slider disk. (between start and end values)
      * The default value is a transparent color.
      */
@@ -243,19 +248,19 @@ open class CircularSlider: UIControl {
      See superclass documentation
      */
     override open func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+        if !isReadOnly {
+            // the position of the pan gesture
+            let touchPosition = touch.location(in: self)
         
-        // the position of the pan gesture
-        let touchPosition = touch.location(in: self)
+            let startPoint = CGPoint(x: bounds.center.x, y: 0)
+            let angle = CircularSliderHelper.angle(betweenFirstPoint: startPoint, secondPoint: touchPosition, inCircleWithCenter: bounds.center)
         
-        let startPoint = CGPoint(x: bounds.center.x, y: 0)
-        let angle = CircularSliderHelper.angle(betweenFirstPoint: startPoint, secondPoint: touchPosition, inCircleWithCenter: bounds.center)
+            let interval = Interval(min: minimumValue, max: maximumValue)
+            let newValue = CircularSliderHelper.value(inInterval: interval, fromAngle: angle)
         
-        let interval = Interval(min: minimumValue, max: maximumValue)
-        let newValue = CircularSliderHelper.value(inInterval: interval, fromAngle: angle)
-        
-        endPointValue = newValue
-        sendActions(for: .valueChanged)
-        
+            endPointValue = newValue
+            sendActions(for: .valueChanged)
+        }
         return true
     }
     
